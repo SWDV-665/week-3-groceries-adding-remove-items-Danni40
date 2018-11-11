@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
 import { ToastController } from 'ionic-angular';
 import { AlertController } from 'ionic-angular';
+import { GroceriesServiceProvider } from '../../providers/groceries-service/groceries-service';
+import { InputDialogServiceProvider } from '../../providers/input-dialog-service/input-dialog-service';
 
 @Component({
   selector: 'page-home',
@@ -11,39 +13,12 @@ export class HomePage {
 
   title = "Grocery";
 
-  items = [
-    {
-      name: "Milk",
-      quantity: 1    
-    },
-    {
-      name: "Bread",
-      quantity: 1    
-    },
-    {
-      name: "Eggs",
-      quantity: 18    
-    },
-    {
-      name: "Bananas",
-      quantity: 1    
-    },
-    {
-      name: "Corn",
-      quantity: 1    
-    },
-    {
-      name: "Breakfast Shake",
-      quantity: 1    
-    },
-    {
-      name: "Tea",
-      quantity: 1    
-    },
-  ];
+  constructor(public navCtrl: NavController, public toastCtrl: ToastController, public alertCtrl: AlertController, public dataService: GroceriesServiceProvider, public inputDialogService: InputDialogServiceProvider) {
 
-  constructor(public navCtrl: NavController, public toastCtrl: ToastController, public alertCtrl: AlertController) {
+  }
 
+  loadItems(){
+    return this.dataService.getItems();
   }
 
   removeItem(item, index) {
@@ -54,45 +29,23 @@ export class HomePage {
     });
     toast.present();
 
-    this.items.splice(index, 1);
+    this.dataService.removeItem(index);
+  }
+
+  editItem(item, index) {
+    console.log("Edit Item - ", item, index);
+    const toast = this.toastCtrl.create({
+      message: 'Editing Item - ' + index + " ...",
+      duration: 3000
+    });
+    toast.present();
+
+    this.inputDialogService.showPrompt(item, index);
   }
 
   addItem() {
     console.log("Adding Item");
-    this.showAddItemPrompt();
-  }
-
-  showAddItemPrompt() {
-    const prompt = this.alertCtrl.create({
-      title: 'Add Item',
-      message: "Please enter item...",
-      inputs: [
-        {
-          name: 'name',
-          placeholder: 'Name'
-        },
-        {
-          name: 'quantity',
-          placeholder: 'Quantity'
-        },
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          handler: data => {
-            console.log('Cancel clicked');
-          }
-        },
-        {
-          text: 'Save',
-          handler: item => {
-            console.log('Saved clicked', item);
-            this.items.push(item);
-          }
-        }
-      ]
-    });
-    prompt.present();
+    this.inputDialogService.showPrompt();
   }
 
 }
